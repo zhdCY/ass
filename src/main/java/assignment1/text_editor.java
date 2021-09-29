@@ -18,11 +18,10 @@ import javafx.scene.layout.HBox;
 import javafx.scene.layout.VBox;
 import javafx.stage.FileChooser;
 import javafx.stage.Stage;
-import javafx.util.Duration;
+
 
 import java.io.File;
 import java.io.FileInputStream;
-import java.text.DateFormat;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 
@@ -90,7 +89,16 @@ public class text_editor extends Application {
 
     @FXML
     void About(ActionEvent event) {
-
+        Stage window=new Stage();
+        VBox layout=new VBox(10);
+        window.setTitle("About");
+        Label label1= new Label("Team Menber: Kexin Li and Yucai.");
+        Label label2=new Label("The Text Editor is created by two of us.");
+        layout.getChildren().addAll(label1,label2);
+        layout.setAlignment(Pos.CENTER);
+        Scene scene = new Scene(layout,300,100);
+        window.setScene(scene);
+        window.show();
     }
 
     @FXML
@@ -150,6 +158,10 @@ public class text_editor extends Application {
 
     @FXML
     void Time(ActionEvent event) {
+        Date currenttime=new Date();
+        SimpleDateFormat time=new SimpleDateFormat("HH:mm yyyy-MM-dd");
+        textarea.insertText(textarea.getCaretPosition(), time.format(currenttime));
+
     }
 
 }
