@@ -1,15 +1,30 @@
 package assignment1;
 
 
+
 import javafx.application.Application;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
+import javafx.geometry.Pos;
 import javafx.scene.Parent;
 import javafx.scene.Scene;
+import javafx.scene.control.Button;
+import javafx.scene.control.Label;
 import javafx.scene.control.MenuItem;
 import javafx.scene.control.TextArea;
+import javafx.scene.layout.BorderPane;
+import javafx.scene.layout.HBox;
+import javafx.scene.layout.VBox;
+import javafx.stage.FileChooser;
 import javafx.stage.Stage;
+import javafx.util.Duration;
+
+import java.io.File;
+import java.io.FileInputStream;
+import java.text.DateFormat;
+import java.text.SimpleDateFormat;
+import java.util.Date;
 
 
 
@@ -51,6 +66,9 @@ public class text_editor extends Application {
 
     @FXML
     private MenuItem selectbn;
+
+    @FXML
+    private MenuItem replacebn;
 
     @FXML
     private MenuItem copybn;
@@ -111,6 +129,11 @@ public class text_editor extends Application {
     }
 
     @FXML
+    void Replace(ActionEvent event) {
+
+    }
+
+    @FXML
     void SaveFile(ActionEvent event) {
 
     }
@@ -127,8 +150,6 @@ public class text_editor extends Application {
 
     @FXML
     void Time(ActionEvent event) {
-
-
     }
 
 }

@@ -28,6 +28,7 @@
                                     <items>
                                         <MenuItem fx:id="searchtbn" mnemonicParsing="false" onAction="#SearchText" text="Search Text" />
                               <MenuItem fx:id="selectbn" mnemonicParsing="false" onAction="#SelectText" text="Select Text" />
+                              <MenuItem fx:id="replacebn" mnemonicParsing="false" onAction="#Replace" text="Replace" />
                               <MenuItem fx:id="copybn" mnemonicParsing="false" onAction="#Copy" text="Copy" />
                               <MenuItem fx:id="pastebn" mnemonicParsing="false" onAction="#Paste" text="Paste" />
                               <MenuItem fx:id="cutbn" mnemonicParsing="false" onAction="#Cut" text="Cut" />
