@@ -17,26 +17,30 @@
                             <menus>
                                 <Menu mnemonicParsing="false" text="File">
                                     <items>
-                                        <MenuItem fx:id="newbn" mnemonicParsing="false" onAction="#NewFileOnAction" text="New" />
-                                        <MenuItem fx:id="openbn" mnemonicParsing="false" onAction="#OpenFileOnAction" text="Open" />
-                                        <MenuItem fx:id="savebn" mnemonicParsing="false" onAction="#SaveFileOnAction" text="Save" />
-                                        <MenuItem fx:id="printbn" mnemonicParsing="false" onAction="#PrintFileOnAction" text="Print" />
-                                        <MenuItem fx:id="exit" mnemonicParsing="false" onAction="#ExitFileOnAction" text="Exit" />
+                                        <MenuItem fx:id="newbn" mnemonicParsing="false" onAction="#NewFile" text="New" />
+                                        <MenuItem fx:id="openbn" mnemonicParsing="false" onAction="#OpenFile" text="Open" />
+                                        <MenuItem fx:id="savebn" mnemonicParsing="false" onAction="#SaveFile" text="Save" />
+                                        <MenuItem fx:id="printbn" mnemonicParsing="false" onAction="#PrintFile" text="Print" />
+                                        <MenuItem fx:id="exit" mnemonicParsing="false" onAction="#Exit" text="Exit" />
                                     </items>
                                 </Menu>
                                 <Menu mnemonicParsing="false" text="Search">
                                     <items>
-                                        <MenuItem fx:id="searchtbn" mnemonicParsing="false" onAction="#SearchTextOnAction" text="Search Text" />
+                                        <MenuItem fx:id="searchtbn" mnemonicParsing="false" onAction="#SearchText" text="Search Text" />
+                              <MenuItem fx:id="selectbn" mnemonicParsing="false" onAction="#SelectText" text="Select Text" />
+                              <MenuItem fx:id="copybn" mnemonicParsing="false" onAction="#Copy" text="Copy" />
+                              <MenuItem fx:id="pastebn" mnemonicParsing="false" onAction="#Paste" text="Paste" />
+                              <MenuItem fx:id="cutbn" mnemonicParsing="false" onAction="#Cut" text="Cut" />
                                     </items>
                                 </Menu>
                                 <Menu mnemonicParsing="false" text="View">
                                     <items>
-                                        <MenuItem fx:id="timebn" mnemonicParsing="false" onAction="#TimeOnAction" text="T&amp;D" />
+                                        <MenuItem fx:id="timebn" mnemonicParsing="false" onAction="#Time" text="T&amp;D" />
                                     </items>
                                 </Menu>
                                 <Menu mnemonicParsing="false" text="Help">
                                     <items>
-                                        <MenuItem fx:id="displayw" mnemonicParsing="false" onAction="#AboutOnAction" text="About" />
+                                        <MenuItem fx:id="aboutbn" mnemonicParsing="false" onAction="#About" text="About" />
                                     </items>
                                 </Menu>
                             </menus>
@@ -45,7 +49,7 @@
                 </AnchorPane>
                 <AnchorPane minHeight="0.0" minWidth="0.0" prefHeight="100.0" prefWidth="160.0">
                     <children>
-                        <TextArea fx:id="text" layoutY="61.0" prefHeight="360.0" prefWidth="598.0" AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="0.0" />
+                        <TextArea fx:id="textarea" layoutY="61.0" prefHeight="360.0" prefWidth="598.0" AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="0.0" />
                     </children>
                 </AnchorPane>
             </items>
