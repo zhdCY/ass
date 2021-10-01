@@ -91,6 +91,25 @@ public class text_editor extends Application {
     @FXML
     private TextArea textarea;
 
+
+    public void initialize(){
+        searchtbn.setDisable(true);
+        selectbn.setDisable(true);
+        textarea.textProperty().addListener(new ChangeListener<String>() {
+            @Override
+            public void changed(ObservableValue<? extends String> observable, String oldValue, String newValue) {
+                if(textarea.getLength() > 0){
+                    searchtbn.setDisable(false);
+                    selectbn.setDisable(false);
+                }
+                else{
+                    searchtbn.setDisable(true);
+                    selectbn.setDisable(true);
+                }
+            }
+        });
+    }
+
     @FXML
     void About(ActionEvent event) {
         Stage window=new Stage();
