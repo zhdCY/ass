@@ -8,11 +8,13 @@ import javafx.beans.value.ObservableValue;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
+import javafx.geometry.Insets;
 import javafx.geometry.Pos;
 import javafx.scene.Parent;
 import javafx.scene.Scene;
 import javafx.scene.control.*;
 import javafx.scene.layout.BorderPane;
+import javafx.scene.layout.GridPane;
 import javafx.scene.layout.HBox;
 import javafx.scene.layout.VBox;
 import javafx.stage.FileChooser;
@@ -130,6 +132,11 @@ public class text_editor extends Application {
     }
 
     @FXML
+    void Paste(ActionEvent event) {
+
+    }
+
+    @FXML
     void Cut(ActionEvent event) {
 
     }
@@ -211,17 +218,7 @@ public class text_editor extends Application {
     }
 
     @FXML
-    void Paste(ActionEvent event) {
-
-    }
-
-    @FXML
     void PrintFile(ActionEvent event) {
-
-    }
-
-    @FXML
-    void Replace(ActionEvent event) {
 
     }
 
@@ -253,6 +250,11 @@ public class text_editor extends Application {
                 e.printStackTrace();
             }
         }
+    }
+
+    @FXML
+    void Replace(ActionEvent event) {
+
     }
 
     @FXML
