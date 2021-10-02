@@ -19,6 +19,8 @@ import javafx.util.Duration;
 
 import java.io.File;
 import java.io.FileInputStream;
+import java.io.FileOutputStream;
+import java.nio.charset.StandardCharsets;
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
 import java.util.Date;
@@ -204,7 +206,32 @@ public class text_editor extends Application {
 
     @FXML
     void SaveFile(ActionEvent event) {
-
+        if(path==null){
+            FileChooser fileChooser=new FileChooser();
+            fileChooser.setTitle("Choose a file and save");
+            File file=fileChooser.showSaveDialog(primaryStage);
+            if (file!=null &&file.exists()){
+                try{
+                    FileOutputStream print=new FileOutputStream(file);
+                    print.write(textarea.getText().getBytes(StandardCharsets.UTF_8));
+                    print.flush();
+                    print.close();
+                    save=true;
+                }catch (Exception e){
+                    e.printStackTrace();
+                }
+            }
+        }else {
+            try{
+                FileOutputStream print=new FileOutputStream(path);
+                print.write(textarea.getText().getBytes(StandardCharsets.UTF_8));
+                print.flush();
+                print.close();
+                save=true;
+            }catch (Exception e){
+                e.printStackTrace();
+            }
+        }
     }
 
     @FXML
