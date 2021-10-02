@@ -259,8 +259,24 @@ public class text_editor extends Application {
 
     @FXML
     void SearchText(ActionEvent event) {
+        GridPane gp_st = new GridPane();
+        gp_st.setPadding(new Insets(40, 25, 25, 25));
+        Label label_st = new Label("Search text: ");
+        TextField tf_st = new TextField();
+        Button b1 = new Button("Search");
+        Button b2 = new Button("Cancel");
+        gp_st.add(label_st,1,0);
+        gp_st.add(tf_st,2,0);
+        gp_st.add(b1,2,1);
+        gp_st.add(b2,3,1);
+        gp_st.setVgap(10.0);
 
-    }
+        Stage stage_st = new Stage();
+        stage_st.setTitle("SEARCH");
+        Scene scene = new Scene(gp_st,350,150);
+        stage_st.setScene(scene);
+        stage_st.show();
+        }
 
     @FXML
     void SelectText(ActionEvent event) {
