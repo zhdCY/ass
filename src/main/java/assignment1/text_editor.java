@@ -93,6 +93,8 @@ public class text_editor extends Application {
     @FXML
     private TextArea textarea;
 
+    int startIndex = 0;
+
     public void initialize(){
         searchtbn.setDisable(true);
         selectbn.setDisable(true);
@@ -254,7 +256,40 @@ public class text_editor extends Application {
 
     @FXML
     void Replace(ActionEvent event) {
+        HBox h_st1 = new HBox();
+        h_st1.setPadding(new Insets(20));
+        h_st1.setSpacing(5);
+        Label l1 = new Label("Search text:  ");
+        TextField t1 = new TextField();
+        h_st1.getChildren().addAll(l1,t1);
 
+        HBox h_st2 = new HBox();
+        h_st2.setPadding(new Insets(20));
+        h_st2.setSpacing(5);
+        Label l2 = new Label("Select text:  ");
+        TextField t2 = new TextField();
+        h_st2.getChildren().addAll(l2,t2);
+
+        VBox v_st1 = new VBox();
+        v_st1.getChildren().addAll(h_st1,h_st2);
+
+        VBox v_st2 = new VBox();
+        v_st2.setPadding(new Insets(20));
+        v_st2.setSpacing(20);
+        Button b_st1 = new Button("Search");
+        Button b_st2 = new Button("Select");
+        Button b_st3 = new Button("Cancel");
+        v_st2.getChildren().addAll(b_st1,b_st2,b_st3);
+
+        HBox h = new HBox();
+        h.setSpacing(20);
+        h.getChildren().addAll(v_st1,v_st2);
+
+        Stage stage_st1 = new Stage();
+        Scene scene = new Scene(h,400,150);
+        stage_st1.setTitle("SELECT");
+        stage_st1.setScene(scene);
+        stage_st1.show();
     }
 
     @FXML
@@ -276,7 +311,42 @@ public class text_editor extends Application {
         Scene scene = new Scene(gp_st,350,150);
         stage_st.setScene(scene);
         stage_st.show();
-        }
+
+        b1.setOnAction(event1 -> {
+            String textstring = textarea.getText();
+            String tf_st_str = tf_st.getText();
+            if(!tf_st.getText().isEmpty()){
+                if(textstring.contains(tf_st_str)){
+                    if(startIndex == -1){
+                        Alert alert1 = new Alert(Alert.AlertType.WARNING);
+                        alert1.titleProperty().set("WARNING");
+                        alert1.headerTextProperty().set("CAN'T find the text!");
+                        alert1.show();
+                    }
+                    startIndex = textarea.getText().indexOf(tf_st.getText(),startIndex);
+                    if(startIndex >= 0 && startIndex < textarea.getText().length()){
+                        textarea.selectRange(startIndex,startIndex + tf_st.getText().length());
+                        startIndex += tf_st.getText().length();
+                    }
+                }
+                if(!textstring.contains(tf_st_str)){
+                    Alert alert1 = new Alert(Alert.AlertType.WARNING);
+                    alert1.titleProperty().set("WARNING");
+                    alert1.headerTextProperty().set("CAN'T find the text!");
+                    alert1.show();
+                }
+            }else if(tf_st.getText().isEmpty()){
+                Alert alert1 = new Alert(Alert.AlertType.WARNING);
+                alert1.titleProperty().set("ERROR");
+                alert1.headerTextProperty().set("Input is EMPTY!");
+                alert1.show();
+            }
+        });
+
+        b2.setOnAction(event1 ->  {
+            stage_st.close();
+        });
+    }
 
     @FXML
     void SelectText(ActionEvent event) {
