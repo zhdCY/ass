@@ -15,18 +15,22 @@ import javafx.scene.Node;
 import javafx.scene.Parent;
 import javafx.scene.Scene;
 import javafx.scene.control.*;
-<<<<<<< HEAD
+
+import javafx.scene.input.Clipboard;
+import javafx.scene.input.ClipboardContent;
+import javafx.scene.input.DataFormat;
+
 import javafx.scene.layout.BorderPane;
 import javafx.scene.layout.GridPane;
 import javafx.scene.layout.HBox;
-=======
+
 import javafx.scene.control.Label;
 import javafx.scene.control.MenuItem;
 import javafx.scene.control.TextArea;
 import javafx.scene.layout.AnchorPane;
 //import javafx.scene.layout.BorderPane;
 //import javafx.scene.layout.HBox;
->>>>>>> bdc8d5f (commit print)
+
 import javafx.scene.layout.VBox;
 //import javafx.scene.transform.Scale;
 import javafx.stage.FileChooser;
@@ -153,17 +157,38 @@ public class text_editor extends Application {
 
     @FXML
     void Copy(ActionEvent event) {
-
+        Clipboard cb = Clipboard.getSystemClipboard();
+        ClipboardContent content = new ClipboardContent();
+        String text = textarea.getSelectedText();
+        content.putString(text);
+        cb.setContent(content);
     }
 
     @FXML
     void Paste(ActionEvent event) {
-
+        Clipboard cb2 = Clipboard.getSystemClipboard();
+        ClipboardContent content = new ClipboardContent();
+        Clipboard cb3 = Clipboard.getSystemClipboard();
+        if(cb3.hasContent(DataFormat.PLAIN_TEXT)){
+            String s = cb3.getContent(DataFormat.PLAIN_TEXT).toString();
+            if(textarea.getSelectedText() != null){
+                textarea.replaceSelection(s);
+            }
+            else{
+                int mouse = textarea.getCaretPosition();
+                textarea.insertText(mouse,s);
+            }
+        }
     }
 
     @FXML
     void Cut(ActionEvent event) {
-
+        Clipboard cb4 = Clipboard.getSystemClipboard();
+        ClipboardContent content = new ClipboardContent();
+        String text = textarea.getSelectedText();
+        content.putString(text);
+        cb4.setContent(content);
+        textarea.replaceSelection("");
     }
 
     @FXML
@@ -260,7 +285,6 @@ public class text_editor extends Application {
 
 
     @FXML
-<<<<<<< HEAD
     void SaveFile(ActionEvent event) {
         if(path==null){
             FileChooser fileChooser=new FileChooser();
@@ -277,10 +301,6 @@ public class text_editor extends Application {
                     e.printStackTrace();
                 }
             }
-=======
-    void Replace(ActionEvent event) {
-
-    }
 
     @FXML
     void SaveAsPDF(ActionEvent event) throws IOException {
@@ -306,7 +326,6 @@ public class text_editor extends Application {
     void SaveFile(ActionEvent event) throws IOException {
         if (file!=null){
             saveFile(file);
->>>>>>> bdc8d5f (commit print)
         }else {
             if (saveAsFile()){
                 Stage currentStage=(Stage) anchorpane.getScene().getWindow();
@@ -347,11 +366,51 @@ public class text_editor extends Application {
         h.setSpacing(20);
         h.getChildren().addAll(v_st1,v_st2);
 
-        Stage stage_st1 = new Stage();
+        Stage stage_st = new Stage();
         Scene scene = new Scene(h,400,150);
-        stage_st1.setTitle("SELECT");
-        stage_st1.setScene(scene);
-        stage_st1.show();
+        stage_st.setTitle("SELECT");
+        stage_st.setScene(scene);
+        stage_st.show();
+
+
+        b_st1.setOnAction(event1 -> {
+            String textstring = textarea.getText();
+            String t1_str = t1.getText();
+            String t2_str = t2.getText();
+            if(!t1.getText().isEmpty()){
+                if(textstring.contains(t1_str)){
+                    if(startIndex == -1){
+                        Alert alert1 = new Alert(Alert.AlertType.WARNING);
+                        alert1.titleProperty().set("WARNING");
+                        alert1.headerTextProperty().set("CAN'T find the text!");
+                        alert1.show();
+                    }
+                    startIndex = textarea.getText().indexOf(t1.getText(),startIndex);
+                    if(startIndex >= 0 && startIndex < textarea.getText().length()){
+                        textarea.selectRange(startIndex,startIndex + t1.getText().length());
+                        startIndex += t1.getText().length();
+                    }
+                    b_st2.setOnAction(event2 -> {
+                        textarea.replaceSelection(t2_str);
+                    });
+                }
+                if(!textstring.contains(t1_str)){
+                    Alert alert1 = new Alert(Alert.AlertType.WARNING);
+                    alert1.titleProperty().set("WARNING");
+                    alert1.headerTextProperty().set("CAN'T find the text!");
+                    alert1.show();
+                }
+            }else if(t1.getText().isEmpty()){
+                Alert alert1 = new Alert(Alert.AlertType.WARNING);
+                alert1.titleProperty().set("ERROR");
+                alert1.headerTextProperty().set("Input is EMPTY!");
+                alert1.show();
+            }
+        });
+        b_st3.setOnAction(event1 ->  {
+            stage_st.close();
+        });
+
     }
 
     @FXML
@@ -368,11 +427,11 @@ public class text_editor extends Application {
         gp_st.add(b2,3,1);
         gp_st.setVgap(10.0);
 
-        Stage stage_st = new Stage();
-        stage_st.setTitle("SEARCH");
-        Scene scene = new Scene(gp_st,350,150);
-        stage_st.setScene(scene);
-        stage_st.show();
+        Stage stage_st1 = new Stage();
+        stage_st1.setTitle("SEARCH");
+        Scene scene1 = new Scene(gp_st,350,150);
+        stage_st1.setScene(scene1);
+        stage_st1.show();
 
         b1.setOnAction(event1 -> {
             String textstring = textarea.getText();
@@ -406,7 +465,7 @@ public class text_editor extends Application {
         });
 
         b2.setOnAction(event1 ->  {
-            stage_st.close();
+            stage_st1.close();
         });
     }
 
