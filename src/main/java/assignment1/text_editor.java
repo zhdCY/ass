@@ -10,25 +10,42 @@ import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
 import javafx.geometry.Insets;
 import javafx.geometry.Pos;
+//import javafx.print.Paper;
+import javafx.scene.Node;
 import javafx.scene.Parent;
 import javafx.scene.Scene;
 import javafx.scene.control.*;
+<<<<<<< HEAD
 import javafx.scene.layout.BorderPane;
 import javafx.scene.layout.GridPane;
 import javafx.scene.layout.HBox;
+=======
+import javafx.scene.control.Label;
+import javafx.scene.control.MenuItem;
+import javafx.scene.control.TextArea;
+import javafx.scene.layout.AnchorPane;
+//import javafx.scene.layout.BorderPane;
+//import javafx.scene.layout.HBox;
+>>>>>>> bdc8d5f (commit print)
 import javafx.scene.layout.VBox;
+//import javafx.scene.transform.Scale;
 import javafx.stage.FileChooser;
 import javafx.stage.Stage;
-import javafx.util.Duration;
+import javafx.print.*;
+import org.apache.pdfbox.pdmodel.PDDocument;
+import org.apache.pdfbox.pdmodel.PDPage;
+import org.apache.pdfbox.pdmodel.PDPageContentStream;
+import org.apache.pdfbox.pdmodel.common.PDRectangle;
+//import javafx.scene.Node;
 
-import java.io.File;
-import java.io.FileInputStream;
-import java.io.FileOutputStream;
-import java.nio.charset.StandardCharsets;
-import java.text.DateFormat;
+
+import java.awt.*;
+//import java.awt.print.PrinterException;
+//import java.awt.print.PrinterJob;
+import java.io.*;
 import java.text.SimpleDateFormat;
 import java.util.Date;
-
+import java.util.Optional;
 
 
 public class text_editor extends Application {
@@ -36,6 +53,7 @@ public class text_editor extends Application {
     private String path=null;
     boolean save = false;
     int startindex=0;
+    File file;
 
     @Override
     public void start(Stage primaryStage) throws Exception{
@@ -52,6 +70,8 @@ public class text_editor extends Application {
     }
 
     @FXML
+    private AnchorPane anchorpane;
+    @FXML
     private MenuItem newbn;
 
     @FXML
@@ -62,6 +82,9 @@ public class text_editor extends Application {
 
     @FXML
     private MenuItem printbn;
+
+    @FXML
+    private MenuItem SaveAsPDF;
 
     @FXML
     private MenuItem exit;
@@ -144,8 +167,8 @@ public class text_editor extends Application {
     }
 
     @FXML
-    void Exit(ActionEvent event) {
-        if (save || textarea.getText().isEmpty()){
+    void Exit(ActionEvent event) throws IOException {
+        if (save){
             Platform.exit();
         }else if (!save && !textarea.getText().isEmpty()){
             Alert warning = new Alert(Alert.AlertType.WARNING);
@@ -156,50 +179,42 @@ public class text_editor extends Application {
     }
 
     @FXML
-    void NewFile(ActionEvent event) {
-        if (save){
-            textarea.setText("");
-            primaryStage.setTitle("new file"+"-Text Editor");
-            path=null;
-        }else if (!save&&!textarea.getText().isEmpty()){
-            Stage stage1=new Stage();
-            VBox layout1=new VBox();
-            layout1.setSpacing(5);
-            Label label1=new Label("You don't save current file!");
-            layout1.getChildren().addAll(label1);
-            Button yes=new Button("Yes");
-            Button cancel=new Button("Cancel");
-            HBox layout2=new HBox();
-            layout2.setSpacing(10);
-            layout2.getChildren().addAll(yes,cancel);
-            layout1.setAlignment(Pos.CENTER);
-            layout2.setAlignment(Pos.CENTER);
-            BorderPane pane=new BorderPane();
-            pane.setTop(layout1);
-            pane.setCenter(layout2);
-            Scene scene=new Scene(pane,300,150);
-            stage1.setTitle("Warning!");
-            stage1.setScene(scene);
-            stage1.show();
-            yes.setOnAction(event1 -> {
-                stage1.close();
-                textarea.setText("");
-                primaryStage.setTitle("new file"+"-Text Editor");
-                path=null;
-//                stage1.close();
-            });
-            cancel.setOnAction(event1 -> {
-                stage1.close();
-            });
+    void NewFile(ActionEvent event) throws IOException {
+        Alert alert=new Alert(Alert.AlertType.INFORMATION,"If you save current file",new ButtonType("yes", ButtonBar.ButtonData.YES),new ButtonType("no",ButtonBar.ButtonData.NO));
+        alert.setHeaderText("Warning");
+        Optional<ButtonType> buttonType = alert.showAndWait();
+        if (buttonType.get().getButtonData().equals(ButtonBar.ButtonData.YES)){
+            if(file !=null)
+                saveFile(file);
+        }else{
+            return;
         }
+
+        textarea.setText("");
+        file = null;
+        Stage currentStage = (Stage)anchorpane.getScene().getWindow();
+        currentStage.setTitle("Text Editor-"+"Unnamed");
+
     }
 
     @FXML
     void OpenFile(ActionEvent event) {
+//        FileChooser fileChooser =new FileChooser();
+//        fileChooser.setTitle("Open file");
+//        fileChooser.getExtensionFilters().addAll( new FileChooser.ExtensionFilter("TXT","*.txt"),
+//                new FileChooser.ExtensionFilter("ALL","*.*"));
+//        Stage currentStage=(Stage) anchorpane.getScene().getWindow();
+//        file=fileChooser.showOpenDialog(currentStage);
+//        if (file==null){
+//            return;
+//        }
+//        currentStage.setTitle("Text Editor-"+file.getName());
+
         FileChooser fileChooser=new FileChooser();
         fileChooser.setTitle("Choose a file and open");
-        fileChooser.getExtensionFilters().addAll(new FileChooser.ExtensionFilter("TXT","*.txt"));
-        File file=fileChooser.showOpenDialog(primaryStage);
+        fileChooser.getExtensionFilters().addAll(new FileChooser.ExtensionFilter("TXT","*.txt"),
+                new FileChooser.ExtensionFilter("ALL","*.*"));
+        file=fileChooser.showOpenDialog(primaryStage);
         if (file!=null&&file.exists()){
             try{
                 FileInputStream read=new FileInputStream(file);
@@ -221,10 +236,31 @@ public class text_editor extends Application {
 
     @FXML
     void PrintFile(ActionEvent event) {
+        Node node=textarea;
+        PrinterJob job = PrinterJob.createPrinterJob();
+        if (job!=null){
+            textarea.textProperty().bind(job.jobStatusProperty().asString());
+//            System.out.println(job.jobStatusProperty().asString());
+            boolean printed =job.printPage(node);
+            if (printed){
+                job.endJob();
+            }else{
+                textarea.textProperty().unbind();
+                textarea.setText("Printing failed.");
+//                System.out.println("Printing failed.");
+            }
+        }else{
+            textarea.setText("Could not create a printer job.");
+//            System.out.println("Could not create a printer job.");
+        }
+
 
     }
 
+
+
     @FXML
+<<<<<<< HEAD
     void SaveFile(ActionEvent event) {
         if(path==null){
             FileChooser fileChooser=new FileChooser();
@@ -241,17 +277,43 @@ public class text_editor extends Application {
                     e.printStackTrace();
                 }
             }
+=======
+    void Replace(ActionEvent event) {
+
+    }
+
+    @FXML
+    void SaveAsPDF(ActionEvent event) throws IOException {
+        PDDocument document=new PDDocument();
+        PDPage page=new PDPage(PDRectangle.A4);
+        document.addPage(page);
+        PDPageContentStream stream=new PDPageContentStream(document,page);
+        stream.setNonStrokingColor(Color.BLACK);
+//        stream.addRect(29, 797, 100, 14);
+        stream.fill();
+        stream.beginText();
+//        stream.setLeading(18f);
+//        stream.newLineAtOffset(30, 800);
+        stream.showText(textarea.getText());
+        stream.endText();
+        stream.close();
+        document.close();
+
+
+    }
+
+    @FXML
+    void SaveFile(ActionEvent event) throws IOException {
+        if (file!=null){
+            saveFile(file);
+>>>>>>> bdc8d5f (commit print)
         }else {
-            try{
-                FileOutputStream print=new FileOutputStream(path);
-                print.write(textarea.getText().getBytes(StandardCharsets.UTF_8));
-                print.flush();
-                print.close();
-                save=true;
-            }catch (Exception e){
-                e.printStackTrace();
+            if (saveAsFile()){
+                Stage currentStage=(Stage) anchorpane.getScene().getWindow();
+                currentStage.setTitle("Text Editor-" + file.getName());
             }
         }
+
     }
 
     @FXML
@@ -355,25 +417,43 @@ public class text_editor extends Application {
 
     @FXML
     void Time(ActionEvent event) {
-        //        DateFormat time=new SimpleDateFormat("yyyy.MM.dd hh:mm:ss");
-//        EventHandler<ActionEvent> eventHandler=event1 -> {
-//            primaryStage.setTitle(time.format(new Date()));
-//            System.out.println(time.format(new Date()));
-//        };
-//        Timeline currenttime= new Timeline(new KeyFrame(Duration.millis(1000)));
-//        currenttime.setCycleCount(Timeline.INDEFINITE);
-//        currenttime.play();
-//        BorderPane pane1=new BorderPane();
-//        Scene scene=new Scene(pane1,300,100);
-//        primaryStage.setScene(scene);
-//        primaryStage.setTitle("Starting");
-//        primaryStage.setResizable(false);
-//        primaryStage.show();
         Date currenttime=new Date();
         SimpleDateFormat time=new SimpleDateFormat("HH:mm yyyy-MM-dd");
         textarea.insertText(textarea.getCaretPosition(), time.format(currenttime));
 
     }
 
+    private boolean saveFile(File file) throws IOException{
+        String content=textarea.getText();
+        Writer writer=null;
+        try{
+            writer=new FileWriter(file);
+            char[] byteArray=content.toCharArray();
+            writer.write(byteArray);
+            return true;
+        }catch (Exception e){
+            e.printStackTrace();
+            return false;
+        }finally {
+            writer.close();
+        }
+    }
+
+    protected boolean saveAsFile() throws IOException{
+        FileChooser fileChooser=new FileChooser();
+        fileChooser.setTitle("Save as");
+        fileChooser.getExtensionFilters().addAll(new FileChooser.ExtensionFilter("TXT","*.txt"),
+                new FileChooser.ExtensionFilter("ALL","*.*"));
+        Stage currentStage=(Stage)anchorpane.getScene().getWindow();
+        File newFile=fileChooser.showSaveDialog(currentStage);
+        if (newFile==null){
+            return false;
+        }
+        saveFile(newFile);
+        file=newFile;
+        System.out.println(newFile.getName());
+        save=true;
+        return true;
+    }
 
 }
