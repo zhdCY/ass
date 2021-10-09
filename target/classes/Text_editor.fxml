@@ -21,7 +21,7 @@
                                         <MenuItem fx:id="openbn" mnemonicParsing="false" onAction="#OpenFile" text="Open" />
                                         <MenuItem fx:id="savebn" mnemonicParsing="false" onAction="#SaveFile" text="Save" />
                                         <MenuItem fx:id="printbn" mnemonicParsing="false" onAction="#PrintFile" text="Print" />
-                              <MenuItem fx:id="SaveAsPDF" mnemonicParsing="false" onAction="#SaveAsPDF" text="PDF format" />
+                                        <MenuItem fx:id="SaveAsPDF" mnemonicParsing="false" onAction="#SaveAsPDF" text="PDF format" />
                                         <MenuItem fx:id="exit" mnemonicParsing="false" onAction="#Exit" text="Exit" />
                                     </items>
                                 </Menu>

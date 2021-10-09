@@ -1,6 +1,10 @@
 package assignment1;
 
 
+
+import com.itextpdf.text.*;
+import com.itextpdf.text.pdf.BaseFont;
+import com.itextpdf.text.pdf.PdfWriter;
 import javafx.application.Application;
 import javafx.application.Platform;
 import javafx.beans.value.ChangeListener;
@@ -16,37 +20,30 @@ import javafx.scene.Parent;
 import javafx.scene.Scene;
 import javafx.scene.control.*;
 
+
 import javafx.scene.input.Clipboard;
 import javafx.scene.input.ClipboardContent;
 import javafx.scene.input.DataFormat;
 
-import javafx.scene.layout.BorderPane;
 import javafx.scene.layout.GridPane;
 import javafx.scene.layout.HBox;
-
+import javafx.scene.control.Button;
+import javafx.scene.control.TextField;
 import javafx.scene.control.Label;
 import javafx.scene.control.MenuItem;
 import javafx.scene.control.TextArea;
 import javafx.scene.layout.AnchorPane;
 //import javafx.scene.layout.BorderPane;
 //import javafx.scene.layout.HBox;
-
 import javafx.scene.layout.VBox;
-//import javafx.scene.transform.Scale;
+
 import javafx.stage.FileChooser;
 import javafx.stage.Stage;
 import javafx.print.*;
-import org.apache.pdfbox.pdmodel.PDDocument;
-import org.apache.pdfbox.pdmodel.PDPage;
-import org.apache.pdfbox.pdmodel.PDPageContentStream;
-import org.apache.pdfbox.pdmodel.common.PDRectangle;
-//import javafx.scene.Node;
 
 
-import java.awt.*;
-//import java.awt.print.PrinterException;
-//import java.awt.print.PrinterJob;
 import java.io.*;
+import java.nio.charset.StandardCharsets;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.Optional;
@@ -195,13 +192,24 @@ public class text_editor extends Application {
     void Exit(ActionEvent event) throws IOException {
         if (save){
             Platform.exit();
-        }else if (!save && !textarea.getText().isEmpty()){
+        }else if (!textarea.getText().isEmpty()){
             Alert warning = new Alert(Alert.AlertType.WARNING);
             warning.titleProperty().set("Warning");
             warning.headerTextProperty().set("You don't save the current content!");
             warning.show();
+            if (file!=null){
+                saveFile(file);
+            }else {
+                if (saveAsFile()){
+                    Stage currentStage=(Stage) anchorpane.getScene().getWindow();
+                    currentStage.setTitle("Text Editor-" + file.getName());
+                }
+            }
         }
+        Platform.exit();
     }
+
+
 
     @FXML
     void NewFile(ActionEvent event) throws IOException {
@@ -223,40 +231,33 @@ public class text_editor extends Application {
     }
 
     @FXML
-    void OpenFile(ActionEvent event) {
-//        FileChooser fileChooser =new FileChooser();
-//        fileChooser.setTitle("Open file");
-//        fileChooser.getExtensionFilters().addAll( new FileChooser.ExtensionFilter("TXT","*.txt"),
-//                new FileChooser.ExtensionFilter("ALL","*.*"));
-//        Stage currentStage=(Stage) anchorpane.getScene().getWindow();
-//        file=fileChooser.showOpenDialog(currentStage);
-//        if (file==null){
-//            return;
-//        }
-//        currentStage.setTitle("Text Editor-"+file.getName());
-
-        FileChooser fileChooser=new FileChooser();
-        fileChooser.setTitle("Choose a file and open");
-        fileChooser.getExtensionFilters().addAll(new FileChooser.ExtensionFilter("TXT","*.txt"),
+    void OpenFile(ActionEvent event) throws IOException {
+        FileChooser fileChooser =new FileChooser();
+        fileChooser.setTitle("Open file");
+        fileChooser.getExtensionFilters().addAll( new FileChooser.ExtensionFilter("TXT","*.txt"),
                 new FileChooser.ExtensionFilter("ALL","*.*"));
-        file=fileChooser.showOpenDialog(primaryStage);
-        if (file!=null&&file.exists()){
-            try{
-                FileInputStream read=new FileInputStream(file);
-                byte[] m=new byte[(int) file.length()];
-                read.read(m);
-                textarea.setText(new String(m));
-                read.close();
-                path=file.getPath();
-                int lasttext;
-                String t;
-                lasttext=path.lastIndexOf("\\");
-                t=path.substring(lasttext+1);
-                primaryStage.setTitle(t+"-Text Editor");
-            }catch (Exception e){
-//                e.printStackTrace();
-            }
+        Stage currentStage=(Stage) anchorpane.getScene().getWindow();
+        file=fileChooser.showOpenDialog(currentStage);
+        if (file==null){
+            return;
         }
+        currentStage.setTitle("Text Editor-"+file.getName());
+        FileInputStream fileInputStream;
+        Reader reader=null;
+        try{
+           fileInputStream=new FileInputStream(file);
+           reader=new InputStreamReader(fileInputStream, StandardCharsets.UTF_8);
+           String a;
+           char[] byteArray=new char[(int) file.length()];
+           reader.read(byteArray);
+           a=new String(byteArray);
+           textarea.setText(a);
+        }catch (Exception e){
+            e.printStackTrace();
+        }finally {
+            reader.close();
+        }
+
     }
 
     @FXML
@@ -265,7 +266,6 @@ public class text_editor extends Application {
         PrinterJob job = PrinterJob.createPrinterJob();
         if (job!=null){
             textarea.textProperty().bind(job.jobStatusProperty().asString());
-//            System.out.println(job.jobStatusProperty().asString());
             boolean printed =job.printPage(node);
             if (printed){
                 job.endJob();
@@ -282,42 +282,25 @@ public class text_editor extends Application {
 
     }
 
-
-
-    @FXML
-    void SaveFile(ActionEvent event) {
-        if(path==null){
-            FileChooser fileChooser=new FileChooser();
-            fileChooser.setTitle("Choose a file and save");
-            File file=fileChooser.showSaveDialog(primaryStage);
-            if (file!=null &&file.exists()){
-                try{
-                    FileOutputStream print=new FileOutputStream(file);
-                    print.write(textarea.getText().getBytes(StandardCharsets.UTF_8));
-                    print.flush();
-                    print.close();
-                    save=true;
-                }catch (Exception e){
-                    e.printStackTrace();
-                }
-            }
+    
 
     @FXML
-    void SaveAsPDF(ActionEvent event) throws IOException {
-        PDDocument document=new PDDocument();
-        PDPage page=new PDPage(PDRectangle.A4);
-        document.addPage(page);
-        PDPageContentStream stream=new PDPageContentStream(document,page);
-        stream.setNonStrokingColor(Color.BLACK);
-//        stream.addRect(29, 797, 100, 14);
-        stream.fill();
-        stream.beginText();
-//        stream.setLeading(18f);
-//        stream.newLineAtOffset(30, 800);
-        stream.showText(textarea.getText());
-        stream.endText();
-        stream.close();
+    void SaveAsPDF(ActionEvent event) throws IOException, DocumentException {
+        String pdf = "C:\\Users\\lenovo\\Desktop\\tsr.pdf";
+        Document document = new Document();
+        OutputStream outputStream=new FileOutputStream(new File(pdf));
+        PdfWriter.getInstance(document,outputStream);
+        document.open();
+        BaseFont baseFont=BaseFont.createFont("C:\\Windows\\Fonts\\simfang.ttf",BaseFont.IDENTITY_H,BaseFont.NOT_EMBEDDED);
+        Font font = new Font(baseFont);
+        InputStreamReader inputStreamReader=new InputStreamReader(new FileInputStream(file.getPath()));
+        BufferedReader bufferedReader=new BufferedReader(inputStreamReader);
+        String str;
+        while ((str=bufferedReader.readLine())!=null){
+            document.add(new Paragraph(str,font));
+        }
         document.close();
+
 
 
     }
