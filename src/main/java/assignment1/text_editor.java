@@ -1,6 +1,8 @@
 package assignment1;
 
-
+import com.itextpdf.text.*;
+import com.itextpdf.text.pdf.BaseFont;
+import com.itextpdf.text.pdf.PdfWriter;
 import javafx.application.Application;
 import javafx.application.Platform;
 import javafx.beans.value.ChangeListener;
@@ -16,37 +18,28 @@ import javafx.scene.Parent;
 import javafx.scene.Scene;
 import javafx.scene.control.*;
 
+import javafx.scene.control.TextField;
 import javafx.scene.input.Clipboard;
 import javafx.scene.input.ClipboardContent;
 import javafx.scene.input.DataFormat;
 
-import javafx.scene.layout.BorderPane;
+import javafx.scene.text.Font;
 import javafx.scene.layout.GridPane;
 import javafx.scene.layout.HBox;
-
+import javafx.scene.control.Button;
 import javafx.scene.control.Label;
 import javafx.scene.control.MenuItem;
 import javafx.scene.control.TextArea;
 import javafx.scene.layout.AnchorPane;
-//import javafx.scene.layout.BorderPane;
-//import javafx.scene.layout.HBox;
 
 import javafx.scene.layout.VBox;
-//import javafx.scene.transform.Scale;
+
 import javafx.stage.FileChooser;
 import javafx.stage.Stage;
 import javafx.print.*;
-import org.apache.pdfbox.pdmodel.PDDocument;
-import org.apache.pdfbox.pdmodel.PDPage;
-import org.apache.pdfbox.pdmodel.PDPageContentStream;
-import org.apache.pdfbox.pdmodel.common.PDRectangle;
-//import javafx.scene.Node;
 
-
-import java.awt.*;
-//import java.awt.print.PrinterException;
-//import java.awt.print.PrinterJob;
 import java.io.*;
+import java.nio.charset.StandardCharsets;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.Optional;
@@ -56,11 +49,11 @@ public class text_editor extends Application {
     private Stage primaryStage;
     private String path=null;
     boolean save = false;
-    int startindex=0;
+    int startindex = 0;
     File file;
 
     @Override
-    public void start(Stage primaryStage) throws Exception{
+    public void start(Stage primaryStage) throws Exception {
         this.primaryStage = primaryStage;
         Parent root = FXMLLoader.load(getClass().getResource("/text_editor.fxml"));
         primaryStage.setTitle("Text Editor");
@@ -73,8 +66,10 @@ public class text_editor extends Application {
         launch(args);
     }
 
+
     @FXML
     private AnchorPane anchorpane;
+
     @FXML
     private MenuItem newbn;
 
@@ -112,6 +107,12 @@ public class text_editor extends Application {
     private MenuItem cutbn;
 
     @FXML
+    private CheckMenuItem linewrapbn;
+
+    @FXML
+    private MenuItem fontbn;
+
+    @FXML
     private MenuItem timebn;
 
     @FXML
@@ -120,21 +121,19 @@ public class text_editor extends Application {
     @FXML
     private TextArea textarea;
 
-    int startIndex = 0;
-
     public void initialize(){
         searchtbn.setDisable(true);
-        selectbn.setDisable(true);
+        replacebn.setDisable(true);
         textarea.textProperty().addListener(new ChangeListener<String>() {
             @Override
             public void changed(ObservableValue<? extends String> observable, String oldValue, String newValue) {
                 if(textarea.getLength() > 0){
                     searchtbn.setDisable(false);
-                    selectbn.setDisable(false);
+                    replacebn.setDisable(false);
                 }
                 else{
                     searchtbn.setDisable(true);
-                    selectbn.setDisable(true);
+                    replacebn.setDisable(true);
                 }
             }
         });
@@ -195,13 +194,24 @@ public class text_editor extends Application {
     void Exit(ActionEvent event) throws IOException {
         if (save){
             Platform.exit();
-        }else if (!save && !textarea.getText().isEmpty()){
+        }else if (!textarea.getText().isEmpty()){
             Alert warning = new Alert(Alert.AlertType.WARNING);
             warning.titleProperty().set("Warning");
             warning.headerTextProperty().set("You don't save the current content!");
             warning.show();
+            if (file!=null){
+                saveFile(file);
+            }else {
+                if (saveAsFile()){
+                    Stage currentStage=(Stage) anchorpane.getScene().getWindow();
+                    currentStage.setTitle("Text Editor-" + file.getName());
+                }
+            }
         }
+        Platform.exit();
     }
+
+
 
     @FXML
     void NewFile(ActionEvent event) throws IOException {
@@ -223,40 +233,33 @@ public class text_editor extends Application {
     }
 
     @FXML
-    void OpenFile(ActionEvent event) {
-//        FileChooser fileChooser =new FileChooser();
-//        fileChooser.setTitle("Open file");
-//        fileChooser.getExtensionFilters().addAll( new FileChooser.ExtensionFilter("TXT","*.txt"),
-//                new FileChooser.ExtensionFilter("ALL","*.*"));
-//        Stage currentStage=(Stage) anchorpane.getScene().getWindow();
-//        file=fileChooser.showOpenDialog(currentStage);
-//        if (file==null){
-//            return;
-//        }
-//        currentStage.setTitle("Text Editor-"+file.getName());
-
-        FileChooser fileChooser=new FileChooser();
-        fileChooser.setTitle("Choose a file and open");
-        fileChooser.getExtensionFilters().addAll(new FileChooser.ExtensionFilter("TXT","*.txt"),
+    void OpenFile(ActionEvent event) throws IOException {
+        FileChooser fileChooser =new FileChooser();
+        fileChooser.setTitle("Open file");
+        fileChooser.getExtensionFilters().addAll( new FileChooser.ExtensionFilter("TXT","*.txt"),
                 new FileChooser.ExtensionFilter("ALL","*.*"));
-        file=fileChooser.showOpenDialog(primaryStage);
-        if (file!=null&&file.exists()){
-            try{
-                FileInputStream read=new FileInputStream(file);
-                byte[] m=new byte[(int) file.length()];
-                read.read(m);
-                textarea.setText(new String(m));
-                read.close();
-                path=file.getPath();
-                int lasttext;
-                String t;
-                lasttext=path.lastIndexOf("\\");
-                t=path.substring(lasttext+1);
-                primaryStage.setTitle(t+"-Text Editor");
-            }catch (Exception e){
-//                e.printStackTrace();
-            }
+        Stage currentStage=(Stage) anchorpane.getScene().getWindow();
+        file=fileChooser.showOpenDialog(currentStage);
+        if (file==null){
+            return;
         }
+        currentStage.setTitle("Text Editor-"+file.getName());
+        FileInputStream fileInputStream;
+        Reader reader=null;
+        try{
+           fileInputStream=new FileInputStream(file);
+           reader=new InputStreamReader(fileInputStream, StandardCharsets.UTF_8);
+           String a;
+           char[] byteArray=new char[(int) file.length()];
+           reader.read(byteArray);
+           a=new String(byteArray);
+           textarea.setText(a);
+        }catch (Exception e){
+            e.printStackTrace();
+        }finally {
+            reader.close();
+        }
+
     }
 
     @FXML
@@ -265,7 +268,6 @@ public class text_editor extends Application {
         PrinterJob job = PrinterJob.createPrinterJob();
         if (job!=null){
             textarea.textProperty().bind(job.jobStatusProperty().asString());
-//            System.out.println(job.jobStatusProperty().asString());
             boolean printed =job.printPage(node);
             if (printed){
                 job.endJob();
@@ -279,47 +281,24 @@ public class text_editor extends Application {
 //            System.out.println("Could not create a printer job.");
         }
 
-
     }
 
-
-
     @FXML
-    void SaveFile(ActionEvent event) {
-        if(path==null){
-            FileChooser fileChooser=new FileChooser();
-            fileChooser.setTitle("Choose a file and save");
-            File file=fileChooser.showSaveDialog(primaryStage);
-            if (file!=null &&file.exists()){
-                try{
-                    FileOutputStream print=new FileOutputStream(file);
-                    print.write(textarea.getText().getBytes(StandardCharsets.UTF_8));
-                    print.flush();
-                    print.close();
-                    save=true;
-                }catch (Exception e){
-                    e.printStackTrace();
-                }
-            }
-
-    @FXML
-    void SaveAsPDF(ActionEvent event) throws IOException {
-        PDDocument document=new PDDocument();
-        PDPage page=new PDPage(PDRectangle.A4);
-        document.addPage(page);
-        PDPageContentStream stream=new PDPageContentStream(document,page);
-        stream.setNonStrokingColor(Color.BLACK);
-//        stream.addRect(29, 797, 100, 14);
-        stream.fill();
-        stream.beginText();
-//        stream.setLeading(18f);
-//        stream.newLineAtOffset(30, 800);
-        stream.showText(textarea.getText());
-        stream.endText();
-        stream.close();
+    void SaveAsPDF(ActionEvent event) throws IOException, DocumentException {
+        String pdf = "C:\\Users\\lenovo\\Desktop\\tsr.pdf";
+        Document document = new Document();
+        OutputStream outputStream=new FileOutputStream(new File(pdf));
+        PdfWriter.getInstance(document,outputStream);
+        document.open();
+        BaseFont baseFont=BaseFont.createFont("C:\\Windows\\Fonts\\simfang.ttf",BaseFont.IDENTITY_H,BaseFont.NOT_EMBEDDED);
+        Font font = new Font(baseFont);
+        InputStreamReader inputStreamReader=new InputStreamReader(new FileInputStream(file.getPath()));
+        BufferedReader bufferedReader=new BufferedReader(inputStreamReader);
+        String str;
+        while ((str=bufferedReader.readLine())!=null){
+            document.add(new Paragraph(str,font));
+        }
         document.close();
-
-
     }
 
     @FXML
@@ -347,7 +326,7 @@ public class text_editor extends Application {
         HBox h_st2 = new HBox();
         h_st2.setPadding(new Insets(20));
         h_st2.setSpacing(5);
-        Label l2 = new Label("Select text:  ");
+        Label l2 = new Label("Replace text:  ");
         TextField t2 = new TextField();
         h_st2.getChildren().addAll(l2,t2);
 
@@ -358,43 +337,92 @@ public class text_editor extends Application {
         v_st2.setPadding(new Insets(20));
         v_st2.setSpacing(20);
         Button b_st1 = new Button("Search");
-        Button b_st2 = new Button("Select");
+        Button b_st2 = new Button("Replace");
+        Button b_st = new Button("Replace All");
         Button b_st3 = new Button("Cancel");
-        v_st2.getChildren().addAll(b_st1,b_st2,b_st3);
+        v_st2.getChildren().addAll(b_st1,b_st2,b_st,b_st3);
 
         HBox h = new HBox();
         h.setSpacing(20);
         h.getChildren().addAll(v_st1,v_st2);
 
         Stage stage_st = new Stage();
-        Scene scene = new Scene(h,400,150);
-        stage_st.setTitle("SELECT");
+        Scene scene = new Scene(h,500,200);
+        stage_st.setResizable(false);
+        stage_st.setTitle("REPLACE");
         stage_st.setScene(scene);
         stage_st.show();
 
-
         b_st1.setOnAction(event1 -> {
-            String textstring = textarea.getText();
+            String text_string = textarea.getText();
             String t1_str = t1.getText();
             String t2_str = t2.getText();
             if(!t1.getText().isEmpty()){
-                if(textstring.contains(t1_str)){
-                    if(startIndex == -1){
+                if(text_string.contains(t1_str)){
+                    if(startindex == -1){
                         Alert alert1 = new Alert(Alert.AlertType.WARNING);
                         alert1.titleProperty().set("WARNING");
                         alert1.headerTextProperty().set("CAN'T find the text!");
                         alert1.show();
                     }
-                    startIndex = textarea.getText().indexOf(t1.getText(),startIndex);
-                    if(startIndex >= 0 && startIndex < textarea.getText().length()){
-                        textarea.selectRange(startIndex,startIndex + t1.getText().length());
-                        startIndex += t1.getText().length();
+                    startindex = textarea.getText().indexOf(t1.getText(),startindex);
+                    if(startindex >= 0 && startindex < textarea.getText().length()){
+                        textarea.selectRange(startindex,startindex + t1.getText().length());
+                        startindex += t1.getText().length();
                     }
                     b_st2.setOnAction(event2 -> {
-                        textarea.replaceSelection(t2_str);
+                        if(t2.getText() == null){
+                            Alert alert1 = new Alert(Alert.AlertType.WARNING);
+                            alert1.titleProperty().set("WARNING");
+                            alert1.headerTextProperty().set("Replacement content is EMPTY!");
+                            alert1.show();
+                        }
+                        else {
+                                textarea.replaceSelection(t2_str);
+                        }
                     });
                 }
-                if(!textstring.contains(t1_str)){
+                if(!text_string.contains(t1_str)){
+                    Alert alert1 = new Alert(Alert.AlertType.WARNING);
+                    alert1.titleProperty().set("WARNING");
+                    alert1.headerTextProperty().set("CAN'T find the text!");
+                    alert1.show();
+                }
+            }else if(t1.getText().isEmpty()){
+                Alert alert1 = new Alert(Alert.AlertType.WARNING);
+                alert1.titleProperty().set("ERROR");
+                alert1.headerTextProperty().set("Input is EMPTY!");
+                alert1.show();
+            }
+        });
+
+        b_st.setOnAction(event2 -> {
+            String text_string = textarea.getText();
+            String t1_str = t1.getText();
+            String t2_str = t2.getText();
+            if(!t1.getText().isEmpty()){
+                if(text_string.contains(t1_str)){
+                    if(startindex == -1){
+                        Alert alert1 = new Alert(Alert.AlertType.WARNING);
+                        alert1.titleProperty().set("WARNING");
+                        alert1.headerTextProperty().set("CAN'T find the text!");
+                        alert1.show();
+                    }
+                    Boolean flag = true;
+                    while(flag){
+                        startindex = textarea.getText().indexOf(t1.getText(),startindex);
+                        if(startindex >= 0 && startindex < textarea.getText().length()){
+                            textarea.selectRange(startindex,startindex + t1.getText().length());
+                            startindex += t1.getText().length();
+                            textarea.replaceSelection(t2_str);
+                            flag = true;
+                        }
+                        else{
+                            flag = false;
+                        }
+                    }
+                }
+                if(!text_string.contains(t1_str)){
                     Alert alert1 = new Alert(Alert.AlertType.WARNING);
                     alert1.titleProperty().set("WARNING");
                     alert1.headerTextProperty().set("CAN'T find the text!");
@@ -410,7 +438,6 @@ public class text_editor extends Application {
         b_st3.setOnAction(event1 ->  {
             stage_st.close();
         });
-
     }
 
     @FXML
@@ -428,8 +455,9 @@ public class text_editor extends Application {
         gp_st.setVgap(10.0);
 
         Stage stage_st1 = new Stage();
-        stage_st1.setTitle("SEARCH");
         Scene scene1 = new Scene(gp_st,350,150);
+        stage_st1.setResizable(false);
+        stage_st1.setTitle("SEARCH");
         stage_st1.setScene(scene1);
         stage_st1.show();
 
@@ -438,16 +466,16 @@ public class text_editor extends Application {
             String tf_st_str = tf_st.getText();
             if(!tf_st.getText().isEmpty()){
                 if(textstring.contains(tf_st_str)){
-                    if(startIndex == -1){
+                    if(startindex == -1){
                         Alert alert1 = new Alert(Alert.AlertType.WARNING);
                         alert1.titleProperty().set("WARNING");
                         alert1.headerTextProperty().set("CAN'T find the text!");
                         alert1.show();
                     }
-                    startIndex = textarea.getText().indexOf(tf_st.getText(),startIndex);
-                    if(startIndex >= 0 && startIndex < textarea.getText().length()){
-                        textarea.selectRange(startIndex,startIndex + tf_st.getText().length());
-                        startIndex += tf_st.getText().length();
+                    startindex = textarea.getText().indexOf(tf_st.getText(),startindex);
+                    if(startindex >= 0 && startindex < textarea.getText().length()){
+                        textarea.selectRange(startindex,startindex + tf_st.getText().length());
+                        startindex += tf_st.getText().length();
                     }
                 }
                 if(!textstring.contains(tf_st_str)){
@@ -474,6 +502,33 @@ public class text_editor extends Application {
         textarea.selectAll();
     }
 
+    @FXML
+    void Line_Wrap(ActionEvent event){
+        if(linewrapbn.isSelected()){
+            textarea.setWrapText(true);
+        }
+        else {
+            textarea.isWrapText();
+        }
+    }
+
+    @FXML
+    void Font(ActionEvent event) throws IOException {
+        Stage font_stage = new Stage();
+        Parent root = FXMLLoader.load(getClass().getResource("/Font_Set.fxml"));
+        Scene scene = new Scene(root);
+        font_stage.setScene(scene);
+        font_stage.showAndWait();
+
+//        InputStream input = text_editor.class.getClassLoader().getResourceAsStream("text_editor.yml");
+//        Yaml yaml = new Yaml();
+//        Map<String, Object> object = (Map<String, Object>) yaml.load(input);
+
+        if(font_stage.getUserData() != null){
+            Font font = (Font) scene.getUserData();
+            textarea.setFont(font);
+        }
+    }
     @FXML
     void Time(ActionEvent event) {
         Date currenttime=new Date();

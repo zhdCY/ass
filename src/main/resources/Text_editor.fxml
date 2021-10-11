@@ -1,5 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
+<?import javafx.scene.control.CheckMenuItem?>
 <?import javafx.scene.control.Menu?>
 <?import javafx.scene.control.MenuBar?>
 <?import javafx.scene.control.MenuItem?>
@@ -21,7 +22,7 @@
                                         <MenuItem fx:id="openbn" mnemonicParsing="false" onAction="#OpenFile" text="Open" />
                                         <MenuItem fx:id="savebn" mnemonicParsing="false" onAction="#SaveFile" text="Save" />
                                         <MenuItem fx:id="printbn" mnemonicParsing="false" onAction="#PrintFile" text="Print" />
-                              <MenuItem fx:id="SaveAsPDF" mnemonicParsing="false" onAction="#SaveAsPDF" text="PDF format" />
+                                        <MenuItem fx:id="SaveAsPDF" mnemonicParsing="false" onAction="#SaveAsPDF" text="PDF format" />
                                         <MenuItem fx:id="exit" mnemonicParsing="false" onAction="#Exit" text="Exit" />
                                     </items>
                                 </Menu>
@@ -35,6 +36,12 @@
                               <MenuItem fx:id="cutbn" mnemonicParsing="false" onAction="#Cut" text="Cut" />
                                     </items>
                                 </Menu>
+                        <Menu mnemonicParsing="false" text="Format">
+                           <items>
+                              <CheckMenuItem fx:id="linewrapbn" mnemonicParsing="false" onAction="#Line_Wrap" text="Line Wrap" />
+                              <MenuItem fx:id="fontbn" mnemonicParsing="false" onAction="#Font" text="Font" />
+                           </items>
+                        </Menu>
                                 <Menu mnemonicParsing="false" text="View">
                                     <items>
                                         <MenuItem fx:id="timebn" mnemonicParsing="false" onAction="#Time" text="T&amp;D" />
