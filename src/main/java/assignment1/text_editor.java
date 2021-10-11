@@ -20,6 +20,7 @@ import javafx.scene.layout.BorderPane;
 import javafx.scene.layout.GridPane;
 import javafx.scene.layout.HBox;
 import javafx.scene.layout.VBox;
+import javafx.scene.text.Font;
 import javafx.stage.FileChooser;
 import javafx.stage.Stage;
 import javafx.util.Duration;
@@ -27,6 +28,7 @@ import javafx.util.Duration;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
+import java.io.IOException;
 import java.nio.charset.StandardCharsets;
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
@@ -86,6 +88,12 @@ public class text_editor extends Application {
 
     @FXML
     private MenuItem cutbn;
+
+    @FXML
+    private CheckMenuItem wrapbn;
+
+    @FXML
+    private MenuItem fontbn;
 
     @FXML
     private MenuItem timebn;
@@ -301,16 +309,18 @@ public class text_editor extends Application {
         v_st2.setPadding(new Insets(20));
         v_st2.setSpacing(20);
         Button b_st1 = new Button("Search");
-        Button b_st2 = new Button("Select");
+        Button b_st2 = new Button("Replace");
+        Button b_st = new Button("Replace All");
         Button b_st3 = new Button("Cancel");
-        v_st2.getChildren().addAll(b_st1,b_st2,b_st3);
+        v_st2.getChildren().addAll(b_st1,b_st2,b_st,b_st3);
 
         HBox h = new HBox();
         h.setSpacing(20);
         h.getChildren().addAll(v_st1,v_st2);
 
         Stage stage_st = new Stage();
-        Scene scene = new Scene(h,400,150);
+        Scene scene = new Scene(h,450,200);
+        stage_st.setResizable(false);
         stage_st.setTitle("SELECT");
         stage_st.setScene(scene);
         stage_st.show();
@@ -350,6 +360,38 @@ public class text_editor extends Application {
                 alert1.show();
             }
         });
+        b_st.setOnAction(event1 -> {
+            String textstring = textarea.getText();
+            String t1_str = t1.getText();
+            String t2_str = t2.getText();
+            if(!t1.getText().isEmpty()){
+                if(textstring.contains(t1_str)){
+                    if(startIndex == -1){
+                        Alert alert1 = new Alert(Alert.AlertType.WARNING);
+                        alert1.titleProperty().set("WARNING");
+                        alert1.headerTextProperty().set("CAN'T find the text!");
+                        alert1.show();
+                    }
+                    while (startIndex >= 0 && startIndex < textarea.getText().length()){
+                        startIndex = textarea.getText().indexOf(t1.getText(),startIndex);
+                        textarea.selectRange(startIndex,startIndex + t1.getText().length());
+                        textarea.replaceSelection(t2_str);
+                        startIndex += t1.getText().length();
+                    }
+                }
+                if(!textstring.contains(t1_str)){
+                    Alert alert1 = new Alert(Alert.AlertType.WARNING);
+                    alert1.titleProperty().set("WARNING");
+                    alert1.headerTextProperty().set("CAN'T find the text!");
+                    alert1.show();
+                }
+            }else if(t1.getText().isEmpty()){
+                Alert alert1 = new Alert(Alert.AlertType.WARNING);
+                alert1.titleProperty().set("ERROR");
+                alert1.headerTextProperty().set("Input is EMPTY!");
+                alert1.show();
+            }
+        });
         b_st3.setOnAction(event1 ->  {
             stage_st.close();
         });
@@ -373,6 +415,7 @@ public class text_editor extends Application {
         Stage stage_st1 = new Stage();
         stage_st1.setTitle("SEARCH");
         Scene scene1 = new Scene(gp_st,350,150);
+        stage_st1.setResizable(false);
         stage_st1.setScene(scene1);
         stage_st1.show();
 
@@ -415,6 +458,30 @@ public class text_editor extends Application {
     @FXML
     void SelectText(ActionEvent event) {
         textarea.selectAll();
+    }
+
+    @FXML
+    void Wrap(ActionEvent event) {
+        if(wrapbn.isSelected()){
+            textarea.setWrapText(true);
+        }
+        else {
+            textarea.setWrapText(false);
+        }
+    }
+
+    @FXML
+    void Font(ActionEvent event) throws IOException {
+        Stage font_stage = new Stage();
+        Parent root = FXMLLoader.load(getClass().getResource("/Font_Set.fxml"));
+        Scene font_Scene = new Scene(root);
+        font_stage.setScene(font_Scene);
+        font_stage.showAndWait();
+        if(font_Scene.getUserData() != null){
+            Font font = (Font) font_Scene.getUserData();
+            textarea.setFont(font);
+        }
+
     }
 
     @FXML

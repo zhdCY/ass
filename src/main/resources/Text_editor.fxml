@@ -1,5 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
+<?import javafx.scene.control.CheckMenuItem?>
 <?import javafx.scene.control.Menu?>
 <?import javafx.scene.control.MenuBar?>
 <?import javafx.scene.control.MenuItem?>
@@ -34,6 +35,12 @@
                               <MenuItem fx:id="cutbn" mnemonicParsing="false" onAction="#Cut" text="Cut" />
                                     </items>
                                 </Menu>
+                        <Menu mnemonicParsing="false" text="Layout">
+                           <items>
+                              <CheckMenuItem fx:id="wrapbn" mnemonicParsing="false" onAction="#Wrap" text="Wrap" />
+                              <MenuItem fx:id="fontbn" mnemonicParsing="false" onAction="#Font" text="Font" />
+                           </items>
+                        </Menu>
                                 <Menu mnemonicParsing="false" text="View">
                                     <items>
                                         <MenuItem fx:id="timebn" mnemonicParsing="false" onAction="#Time" text="T&amp;D" />
