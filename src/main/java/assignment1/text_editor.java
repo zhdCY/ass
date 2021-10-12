@@ -5,6 +5,7 @@ import com.itextpdf.text.pdf.BaseFont;
 import com.itextpdf.text.pdf.PdfWriter;
 import javafx.application.Application;
 import javafx.application.Platform;
+
 import javafx.beans.value.ChangeListener;
 import javafx.beans.value.ObservableValue;
 import javafx.event.ActionEvent;
@@ -12,7 +13,6 @@ import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
 import javafx.geometry.Insets;
 import javafx.geometry.Pos;
-//import javafx.print.Paper;
 import javafx.scene.Node;
 import javafx.scene.Parent;
 import javafx.scene.Scene;
@@ -27,16 +27,23 @@ import javafx.scene.text.Font;
 import javafx.scene.layout.GridPane;
 import javafx.scene.layout.HBox;
 import javafx.scene.control.Button;
+import javafx.scene.layout.GridPane;
+import javafx.scene.layout.HBox;
+import javafx.scene.control.Button;
+import javafx.scene.control.TextField;
 import javafx.scene.control.Label;
 import javafx.scene.control.MenuItem;
 import javafx.scene.control.TextArea;
 import javafx.scene.layout.AnchorPane;
-
 import javafx.scene.layout.VBox;
 
 import javafx.stage.FileChooser;
 import javafx.stage.Stage;
 import javafx.print.*;
+
+import javax.swing.text.BadLocationException;
+import javax.swing.text.DefaultStyledDocument;
+import javax.swing.text.rtf.RTFEditorKit;
 
 import java.io.*;
 import java.nio.charset.StandardCharsets;
@@ -199,6 +206,11 @@ public class text_editor extends Application {
             warning.titleProperty().set("Warning");
             warning.headerTextProperty().set("You don't save the current content!");
             warning.show();
+
+//            Alert warning = new Alert(Alert.AlertType.WARNING);
+//            warning.titleProperty().set("Warning");
+//            warning.headerTextProperty().set("You don't save the current content!");
+//            warning.show();
             if (file!=null){
                 saveFile(file);
             }else {
@@ -246,21 +258,50 @@ public class text_editor extends Application {
         currentStage.setTitle("Text Editor-"+file.getName());
         FileInputStream fileInputStream;
         Reader reader=null;
-        try{
-           fileInputStream=new FileInputStream(file);
-           reader=new InputStreamReader(fileInputStream, StandardCharsets.UTF_8);
-           String a;
-           char[] byteArray=new char[(int) file.length()];
-           reader.read(byteArray);
-           a=new String(byteArray);
-           textarea.setText(a);
-        }catch (Exception e){
-            e.printStackTrace();
-        }finally {
-            reader.close();
+        String filePath=file.getPath();
+        String fileName = filePath.substring(filePath.lastIndexOf("\\")+1);
+        String[] strArray = fileName.split("\\.");
+        int suffixIndex = strArray.length -1;
+        System.out.println(strArray[suffixIndex]);
+        if (strArray[suffixIndex].equals("txt")){
+            try{
+                fileInputStream=new FileInputStream(file);
+                reader=new InputStreamReader(fileInputStream, StandardCharsets.UTF_8);
+                String a;
+                char[] byteArray=new char[(int) file.length()];
+                reader.read(byteArray);
+                a=new String(byteArray);
+                textarea.setText(a);
+            }catch (Exception e){
+                e.printStackTrace();
+            }finally {
+                assert reader != null;
+                reader.close();
+            }
+        }
+        if (strArray[suffixIndex].equals("rtf")){
+            textarea.setText(RtfContent(filePath));
+        }
+        if (strArray[suffixIndex].equals("odt")){
+
         }
 
     }
+
+    public String RtfContent(String filePath){
+        String result = null;
+        try{
+            DefaultStyledDocument styledDocument=new DefaultStyledDocument();
+            InputStream inputStream=new FileInputStream(file);
+            new RTFEditorKit().read(inputStream,styledDocument,0);
+            result=new String(styledDocument.getText(0,styledDocument.getLength()).getBytes("ISO8859-1"),"GBK");
+
+        }catch (IOException | BadLocationException e){
+            e.printStackTrace();
+        }
+        return result;
+    }
+
 
     @FXML
     void PrintFile(ActionEvent event) {
@@ -285,20 +326,30 @@ public class text_editor extends Application {
 
     @FXML
     void SaveAsPDF(ActionEvent event) throws IOException, DocumentException {
-        String pdf = "C:\\Users\\lenovo\\Desktop\\tsr.pdf";
-        Document document = new Document();
-        OutputStream outputStream=new FileOutputStream(new File(pdf));
-        PdfWriter.getInstance(document,outputStream);
-        document.open();
-        BaseFont baseFont=BaseFont.createFont("C:\\Windows\\Fonts\\simfang.ttf",BaseFont.IDENTITY_H,BaseFont.NOT_EMBEDDED);
-        Font font = new Font(baseFont);
-        InputStreamReader inputStreamReader=new InputStreamReader(new FileInputStream(file.getPath()));
-        BufferedReader bufferedReader=new BufferedReader(inputStreamReader);
-        String str;
-        while ((str=bufferedReader.readLine())!=null){
-            document.add(new Paragraph(str,font));
+        FileChooser fileChooser=new FileChooser();
+        fileChooser.setTitle("Save as");
+        fileChooser.getExtensionFilters().addAll(new FileChooser.ExtensionFilter("PDF","*.pdf"));
+        Stage currentStage=(Stage)anchorpane.getScene().getWindow();
+        File newFile=fileChooser.showSaveDialog(currentStage);
+        if (newFile==null){
+            return;
         }
-        document.close();
+        else {
+            Document document = new Document();
+            OutputStream outputStream=new FileOutputStream(newFile);
+            PdfWriter.getInstance(document,outputStream);
+            document.open();
+            BaseFont baseFont=BaseFont.createFont("C:\\Windows\\Fonts\\simfang.ttf",BaseFont.IDENTITY_H,BaseFont.NOT_EMBEDDED);
+            com.itextpdf.text.Font font=new com.itextpdf.text.Font(baseFont);
+            InputStreamReader inputStreamReader=new InputStreamReader(new FileInputStream(file.getPath()));
+            BufferedReader b6ufferedReader=new BufferedReader(inputStreamReader);
+            String str;
+            while ((str = b6ufferedReader.readLine())!=null){
+                document.add(new Paragraph(str,font));
+            }
+            document.close();
+        }
+
     }
 
     @FXML
@@ -311,7 +362,6 @@ public class text_editor extends Application {
                 currentStage.setTitle("Text Editor-" + file.getName());
             }
         }
-
     }
 
     @FXML
