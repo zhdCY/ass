@@ -36,9 +36,9 @@
                               <MenuItem fx:id="cutbn" mnemonicParsing="false" onAction="#Cut" text="Cut" />
                                     </items>
                                 </Menu>
-                        <Menu mnemonicParsing="false" text="Format">
+                        <Menu mnemonicParsing="false" text="Layout">
                            <items>
-                              <CheckMenuItem fx:id="linewrapbn" mnemonicParsing="false" onAction="#Line_Wrap" text="Line Wrap" />
+                              <CheckMenuItem fx:id="wrapbn" mnemonicParsing="false" onAction="#Wrap" text="Wrap" />
                               <MenuItem fx:id="fontbn" mnemonicParsing="false" onAction="#Font" text="Font" />
                            </items>
                         </Menu>

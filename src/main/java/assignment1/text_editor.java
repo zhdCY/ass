@@ -27,10 +27,6 @@ import javafx.scene.text.Font;
 import javafx.scene.layout.GridPane;
 import javafx.scene.layout.HBox;
 import javafx.scene.control.Button;
-import javafx.scene.layout.GridPane;
-import javafx.scene.layout.HBox;
-import javafx.scene.control.Button;
-import javafx.scene.control.TextField;
 import javafx.scene.control.Label;
 import javafx.scene.control.MenuItem;
 import javafx.scene.control.TextArea;
@@ -46,6 +42,11 @@ import javax.swing.text.DefaultStyledDocument;
 import javax.swing.text.rtf.RTFEditorKit;
 
 import java.io.*;
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileOutputStream;
+import java.io.IOException;
+
 import java.nio.charset.StandardCharsets;
 import java.text.SimpleDateFormat;
 import java.util.Date;
@@ -114,7 +115,7 @@ public class text_editor extends Application {
     private MenuItem cutbn;
 
     @FXML
-    private CheckMenuItem linewrapbn;
+    private CheckMenuItem wrapbn;
 
     @FXML
     private MenuItem fontbn;
@@ -397,9 +398,9 @@ public class text_editor extends Application {
         h.getChildren().addAll(v_st1,v_st2);
 
         Stage stage_st = new Stage();
-        Scene scene = new Scene(h,500,200);
+        Scene scene = new Scene(h,450,200);
         stage_st.setResizable(false);
-        stage_st.setTitle("REPLACE");
+        stage_st.setTitle("SELECT");
         stage_st.setScene(scene);
         stage_st.show();
 
@@ -485,6 +486,38 @@ public class text_editor extends Application {
                 alert1.show();
             }
         });
+        b_st.setOnAction(event1 -> {
+            String textstring = textarea.getText();
+            String t1_str = t1.getText();
+            String t2_str = t2.getText();
+            if(!t1.getText().isEmpty()){
+                if(textstring.contains(t1_str)){
+                    if(startindex == -1){
+                        Alert alert1 = new Alert(Alert.AlertType.WARNING);
+                        alert1.titleProperty().set("WARNING");
+                        alert1.headerTextProperty().set("CAN'T find the text!");
+                        alert1.show();
+                    }
+                    while (startindex >= 0 && startindex < textarea.getText().length()){
+                        startindex = textarea.getText().indexOf(t1.getText(),startindex);
+                        textarea.selectRange(startindex,startindex + t1.getText().length());
+                        textarea.replaceSelection(t2_str);
+                        startindex += t1.getText().length();
+                    }
+                }
+                if(!textstring.contains(t1_str)){
+                    Alert alert1 = new Alert(Alert.AlertType.WARNING);
+                    alert1.titleProperty().set("WARNING");
+                    alert1.headerTextProperty().set("CAN'T find the text!");
+                    alert1.show();
+                }
+            }else if(t1.getText().isEmpty()){
+                Alert alert1 = new Alert(Alert.AlertType.WARNING);
+                alert1.titleProperty().set("ERROR");
+                alert1.headerTextProperty().set("Input is EMPTY!");
+                alert1.show();
+            }
+        });
         b_st3.setOnAction(event1 ->  {
             stage_st.close();
         });
@@ -553,12 +586,12 @@ public class text_editor extends Application {
     }
 
     @FXML
-    void Line_Wrap(ActionEvent event){
-        if(linewrapbn.isSelected()){
+    void Wrap(ActionEvent event) {
+        if(wrapbn.isSelected()){
             textarea.setWrapText(true);
         }
         else {
-            textarea.isWrapText();
+            textarea.setWrapText(false);
         }
     }
 
@@ -566,18 +599,17 @@ public class text_editor extends Application {
     void Font(ActionEvent event) throws IOException {
         Stage font_stage = new Stage();
         Parent root = FXMLLoader.load(getClass().getResource("/Font_Set.fxml"));
-        Scene scene = new Scene(root);
-        font_stage.setScene(scene);
-        font_stage.showAndWait();
-
 //        InputStream input = text_editor.class.getClassLoader().getResourceAsStream("text_editor.yml");
 //        Yaml yaml = new Yaml();
 //        Map<String, Object> object = (Map<String, Object>) yaml.load(input);
-
-        if(font_stage.getUserData() != null){
-            Font font = (Font) scene.getUserData();
+        Scene font_Scene = new Scene(root);
+        font_stage.setScene(font_Scene);
+        font_stage.showAndWait();
+        if(font_Scene.getUserData() != null){
+            Font font = (Font) font_Scene.getUserData();
             textarea.setFont(font);
         }
+
     }
     @FXML
     void Time(ActionEvent event) {
