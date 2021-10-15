@@ -1,2 +1,2 @@
-language: java
+language: javafx
 script: mvn clean test
