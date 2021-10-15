@@ -33,9 +33,14 @@ import javafx.scene.control.TextArea;
 import javafx.scene.layout.AnchorPane;
 import javafx.scene.layout.VBox;
 
+import javafx.scene.text.FontPosture;
+import javafx.scene.text.FontWeight;
 import javafx.stage.FileChooser;
 import javafx.stage.Stage;
 import javafx.print.*;
+import org.odftoolkit.odfdom.doc.OdfTextDocument;
+
+import org.yaml.snakeyaml.Yaml;
 
 import javax.swing.text.BadLocationException;
 import javax.swing.text.DefaultStyledDocument;
@@ -49,7 +54,9 @@ import java.io.IOException;
 
 import java.nio.charset.StandardCharsets;
 import java.text.SimpleDateFormat;
+import java.util.ArrayList;
 import java.util.Date;
+import java.util.Map;
 import java.util.Optional;
 
 
@@ -59,6 +66,13 @@ public class text_editor extends Application {
     boolean save = false;
     int startindex = 0;
     File file;
+
+    InputStream input = text_editor.class.getClassLoader().getResourceAsStream("text_editor.yml");
+    Yaml yaml = new Yaml();
+    Map<String, Object> object = (Map<String, Object>) yaml.load(input);
+    String type = (String) object.get("style");
+    String shape = (String) object.get("shape");
+    int size = (int) object.get("size");
 
     @Override
     public void start(Stage primaryStage) throws Exception {
@@ -129,19 +143,39 @@ public class text_editor extends Application {
     @FXML
     private TextArea textarea;
 
+
+
     public void initialize(){
+        Font textfont = Font.font(type,size);
+        if(shape.equals("normal")){
+            textfont = Font.font(type,FontWeight.NORMAL, FontPosture.REGULAR,size);
+        }
+        else if(shape.equals("italic")){
+            textfont = Font.font(type,FontWeight.NORMAL,FontPosture.ITALIC,size);
+        }
+        else if(shape.equals("bold")){
+            textfont = Font.font(type,FontWeight.BOLD,FontPosture.REGULAR,size);
+        }
+        else if(shape.equals("italic_bold")){
+            textfont = Font.font(type,FontWeight.BOLD,FontPosture.ITALIC,size);
+        }
+        textarea.setFont(textfont);
+
         searchtbn.setDisable(true);
         replacebn.setDisable(true);
+        selectbn.setDisable(true);
         textarea.textProperty().addListener(new ChangeListener<String>() {
             @Override
             public void changed(ObservableValue<? extends String> observable, String oldValue, String newValue) {
                 if(textarea.getLength() > 0){
                     searchtbn.setDisable(false);
                     replacebn.setDisable(false);
+                    selectbn.setDisable(false);
                 }
                 else{
                     searchtbn.setDisable(true);
                     replacebn.setDisable(true);
+                    selectbn.setDisable(true);
                 }
             }
         });
@@ -161,7 +195,7 @@ public class text_editor extends Application {
         window.setScene(scene);
         window.show();
     }
-
+    //copy text whatever users want
     @FXML
     void Copy(ActionEvent event) {
         Clipboard cb = Clipboard.getSystemClipboard();
@@ -170,7 +204,7 @@ public class text_editor extends Application {
         content.putString(text);
         cb.setContent(content);
     }
-
+    //paste
     @FXML
     void Paste(ActionEvent event) {
         Clipboard cb2 = Clipboard.getSystemClipboard();
@@ -187,7 +221,7 @@ public class text_editor extends Application {
             }
         }
     }
-
+    //delete the content that users choose.
     @FXML
     void Cut(ActionEvent event) {
         Clipboard cb4 = Clipboard.getSystemClipboard();
@@ -203,21 +237,20 @@ public class text_editor extends Application {
         if (save){
             Platform.exit();
         }else if (!textarea.getText().isEmpty()){
-            Alert warning = new Alert(Alert.AlertType.WARNING);
-            warning.titleProperty().set("Warning");
-            warning.headerTextProperty().set("You don't save the current content!");
-            warning.show();
-
-//            Alert warning = new Alert(Alert.AlertType.WARNING);
-//            warning.titleProperty().set("Warning");
-//            warning.headerTextProperty().set("You don't save the current content!");
-//            warning.show();
-            if (file!=null){
-                saveFile(file);
-            }else {
-                if (saveAsFile()){
-                    Stage currentStage=(Stage) anchorpane.getScene().getWindow();
-                    currentStage.setTitle("Text Editor-" + file.getName());
+            FileInputStream fileInputStream;
+            Reader reader=null;
+            String filePath=file.getPath();
+            String fileName = filePath.substring(filePath.lastIndexOf("\\")+1);
+            String[] strArray = fileName.split("\\.");
+            int suffixIndex = strArray.length -1;
+            if (strArray[suffixIndex].equals("txt")){
+                if (file!=null){
+                    saveFile(file);
+                }else {
+                    if (saveAsFile()){
+                        Stage currentStage=(Stage) anchorpane.getScene().getWindow();
+                        currentStage.setTitle("Text Editor-" + file.getName());
+                    }
                 }
             }
         }
@@ -246,7 +279,7 @@ public class text_editor extends Application {
     }
 
     @FXML
-    void OpenFile(ActionEvent event) throws IOException {
+    void OpenFile(ActionEvent event) throws Exception {
         FileChooser fileChooser =new FileChooser();
         fileChooser.setTitle("Open file");
         fileChooser.getExtensionFilters().addAll( new FileChooser.ExtensionFilter("TXT","*.txt"),
@@ -281,9 +314,19 @@ public class text_editor extends Application {
             }
         }
         if (strArray[suffixIndex].equals("rtf")){
-            textarea.setText(RtfContent(filePath));
+            try{
+                textarea.setText(RtfContent(filePath));
+            }catch (Exception e){
+                e.printStackTrace();
+            }
         }
+
         if (strArray[suffixIndex].equals("odt")){
+            try{
+                textarea.setText(OdtContent(filePath));
+            }catch (Exception e){
+                e.printStackTrace();
+            }
 
         }
 
@@ -300,8 +343,16 @@ public class text_editor extends Application {
         }catch (IOException | BadLocationException e){
             e.printStackTrace();
         }
-        return result;
+        String rtf=result;
+        return rtf;
     }
+    public String OdtContent(String filepath) throws Exception {
+        filepath=file.getPath();
+        OdfTextDocument odfTextDocument=OdfTextDocument.loadDocument(filepath);
+        String text=odfTextDocument.getContentRoot().getTextContent();
+        return text;
+    }
+
 
 
     @FXML
@@ -354,17 +405,33 @@ public class text_editor extends Application {
     }
 
     @FXML
-    void SaveFile(ActionEvent event) throws IOException {
-        if (file!=null){
-            saveFile(file);
-        }else {
-            if (saveAsFile()){
-                Stage currentStage=(Stage) anchorpane.getScene().getWindow();
-                currentStage.setTitle("Text Editor-" + file.getName());
+    void SaveFile(ActionEvent event) throws Exception {
+        String filePath=file.getPath();
+        String fileName = filePath.substring(filePath.lastIndexOf("\\")+1);
+        String[] strArray = fileName.split("\\.");
+        int suffixIndex = strArray.length -1;
+        System.out.println(strArray[suffixIndex]);
+        if (strArray[suffixIndex].equals("txt")){
+            if (file!=null){
+                saveFile(file);
+            }else {
+                if (saveAsFile()){
+                    Stage currentStage=(Stage) anchorpane.getScene().getWindow();
+                    currentStage.setTitle("Text Editor-" + file.getName());
+                }
             }
         }
-    }
+        if (strArray[suffixIndex].equals("odt")){
+            String filepath=file.getPath();
+            OdfTextDocument odfTextDocument=OdfTextDocument.loadDocument(filepath);
+//            String text=odfTextDocument.getContentRoot().getTextContent();
+            odfTextDocument.addText(textarea.getText());
+            odfTextDocument.close();
+            odfTextDocument.save(filePath);
+        }
 
+    }
+    //the function is to replace selected text,including replace one and replace all.
     @FXML
     void Replace(ActionEvent event) {
         HBox h_st1 = new HBox();
@@ -400,7 +467,7 @@ public class text_editor extends Application {
         Stage stage_st = new Stage();
         Scene scene = new Scene(h,450,200);
         stage_st.setResizable(false);
-        stage_st.setTitle("SELECT");
+        stage_st.setTitle("REPLACE");
         stage_st.setScene(scene);
         stage_st.show();
 
@@ -486,43 +553,32 @@ public class text_editor extends Application {
                 alert1.show();
             }
         });
-        b_st.setOnAction(event1 -> {
-            String textstring = textarea.getText();
-            String t1_str = t1.getText();
-            String t2_str = t2.getText();
-            if(!t1.getText().isEmpty()){
-                if(textstring.contains(t1_str)){
-                    if(startindex == -1){
-                        Alert alert1 = new Alert(Alert.AlertType.WARNING);
-                        alert1.titleProperty().set("WARNING");
-                        alert1.headerTextProperty().set("CAN'T find the text!");
-                        alert1.show();
-                    }
-                    while (startindex >= 0 && startindex < textarea.getText().length()){
-                        startindex = textarea.getText().indexOf(t1.getText(),startindex);
-                        textarea.selectRange(startindex,startindex + t1.getText().length());
-                        textarea.replaceSelection(t2_str);
-                        startindex += t1.getText().length();
-                    }
-                }
-                if(!textstring.contains(t1_str)){
-                    Alert alert1 = new Alert(Alert.AlertType.WARNING);
-                    alert1.titleProperty().set("WARNING");
-                    alert1.headerTextProperty().set("CAN'T find the text!");
-                    alert1.show();
-                }
-            }else if(t1.getText().isEmpty()){
-                Alert alert1 = new Alert(Alert.AlertType.WARNING);
-                alert1.titleProperty().set("ERROR");
-                alert1.headerTextProperty().set("Input is EMPTY!");
-                alert1.show();
-            }
-        });
         b_st3.setOnAction(event1 ->  {
             stage_st.close();
         });
     }
-
+    //this function is to test the SearchText function.
+    public ArrayList<Integer> Search(String str,String text){
+//        String text = textarea.getText();
+        ArrayList<Integer> index = new ArrayList<>();
+        if(!str.isEmpty() && text.contains(str) && startindex != -1) {
+            Boolean flag = true;
+            while (flag) {
+                startindex = text.indexOf(str, startindex);
+                if (startindex >= 0 && startindex < text.length()) {
+//                    text.selectRange(startindex, startindex + str.length());
+                    index.add(startindex);
+                    startindex += str.length();
+                    flag = true;
+                } else {
+                    flag = false;
+                }
+            }
+        }
+//        System.out.println(index);
+        return index;
+    }
+    //this function is to search the text.
     @FXML
     void SearchText(ActionEvent event) {
         GridPane gp_st = new GridPane();
@@ -579,12 +635,12 @@ public class text_editor extends Application {
             stage_st1.close();
         });
     }
-
+    //this function is to select all the text in the textarea.
     @FXML
     void SelectText(ActionEvent event) {
         textarea.selectAll();
     }
-
+    //this function allows users to wrap the text.
     @FXML
     void Wrap(ActionEvent event) {
         if(wrapbn.isSelected()){
@@ -594,23 +650,26 @@ public class text_editor extends Application {
             textarea.setWrapText(false);
         }
     }
-
+    //this function is about font style,shape and size.Users can choose whatever they want.
     @FXML
     void Font(ActionEvent event) throws IOException {
         Stage font_stage = new Stage();
         Parent root = FXMLLoader.load(getClass().getResource("/Font_Set.fxml"));
-//        InputStream input = text_editor.class.getClassLoader().getResourceAsStream("text_editor.yml");
-//        Yaml yaml = new Yaml();
-//        Map<String, Object> object = (Map<String, Object>) yaml.load(input);
         Scene font_Scene = new Scene(root);
         font_stage.setScene(font_Scene);
         font_stage.showAndWait();
+
+        InputStream input = text_editor.class.getClassLoader().getResourceAsStream("text_editor.yml");
+        Yaml yaml = new Yaml();
+        Map<String, Object> object = (Map<String, Object>) yaml.load(input);
+
         if(font_Scene.getUserData() != null){
             Font font = (Font) font_Scene.getUserData();
             textarea.setFont(font);
         }
 
     }
+
     @FXML
     void Time(ActionEvent event) {
         Date currenttime=new Date();

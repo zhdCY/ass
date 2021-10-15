@@ -55,9 +55,6 @@ public class Font_Set {
     Yaml yaml = new Yaml();
     Map<String, Object> object = (Map<String, Object>) yaml.load(input);
 
-//    public Font Txtfont = Font.font((String) object.get("style"), FontWeight.valueOf((String) object.get("shape")),(int) object.get("size"));
-//    private Font font =Font.font((String) object.get("style"), FontWeight.valueOf((String) object.get("shape")),(int) object.get("size"));
-
     public Font Txtfont = Font.font(12);
     private Font font = Font.font(12);
 

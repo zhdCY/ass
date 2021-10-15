@@ -1,30 +1,88 @@
 # 251-Assignment1-2021-Li-Cai
 
-#### 介绍
-251assignment
+#### Members' ID
 
-#### 软件架构
-软件架构说明
+Kexin Li: 20007909
 
-#### 使用说明
+Yu Cai: 20007871
 
-1.  xxxx
-2.  xxxx
-3.  xxxx
+#### Introduction
 
-#### 参与贡献
+URL:https://gitee.com/Li20007909/Assignment
 
-1.  Fork 本仓库
-2.  新建 Feat_xxx 分支
-3.  提交代码
-4.  新建 Pull Request
+#### Issues
 
+There are four issues in our Gitee repository.
 
-#### 特技
+#### Important Commit IDs
 
-1.  使用 Readme\_XXX.md 来支持不同的语言，例如 Readme\_en.md, Readme\_zh.md
-2.  Gitee 官方博客 [blog.gitee.com](https://blog.gitee.com)
-3.  你可以 [https://gitee.com/explore](https://gitee.com/explore) 这个地址来了解 Gitee 上的优秀开源项目
-4.  [GVP](https://gitee.com/gvp) 全称是 Gitee 最有价值开源项目，是综合评定出的优秀开源项目
-5.  Gitee 官方提供的使用手册 [https://gitee.com/help](https://gitee.com/help)
-6.  Gitee 封面人物是一档用来展示 Gitee 会员风采的栏目 [https://gitee.com/gitee-stars/](https://gitee.com/gitee-stars/)
+1.  First commit(916c6e6) by Kexin Li
+2.  first commit(98e14db) by Yu Cai
+3.  update src/main/java/assignment1/text_editor.java.(7e8337d) by Kexin Li
+4.  second commit(4881122) by Kexin Li
+5.  fourth(91dac50) by Yu Cai
+6.  add README.md(8a1675b) by Yu Cai
+7.  commit print(b956206) by Kexin Li
+8.  fifth(d803d33) by Yu Cai
+9.  merge confilict(b8bf3ba) by Yu Cai
+10.  saveaspdf(9ca1216) by Kexin Li
+11.  add again(c43441c) by Yu Cai
+12.  merge(9859604) by Yu Cai
+
+#### Features
+
+1. initialize():when the text area is empty,users can't use SearchText, SelectText and Replace.
+
+2. About():A dialog box is displayed, and related information is displayed.
+
+3. Copy():copy the text that users choose.
+
+4. Paste():paste 
+
+5. Cut():delete the text that users choose.
+
+6. Exit():exit the window.
+
+7. NewFile():create a new file.
+
+8. *<u>**OpenFile():open a file**</u>*
+
+9. RtfContent():call this function in OpenFile()
+
+10. PrintFile():print this file
+
+11. SaveAsPDF():save a file as PDF
+
+12. SaveFile():save the file
+
+13. *<u>**Replace():Replace the text that is labeled to be searched with the text that is labeled to be replaced,including replace one and replace all**</u>*
+
+14. Search():this function is to test the function named SearchText
+
+15. SearchText():Search the text filled in the text field
+
+16. SelectText():select the all content in the text area.
+
+17. SelectText():select all the text of the text area
+
+18. Wrap(): choose whether to wrap
+
+19. <u>***Font():set the type,shape and size of the font***</u>
+
+20. Time(): show current data
+
+21. saveFile(),saveAsFile():the function named SaveFile will call these two functions.
+
+    ##### We also contain a folder named test and it includes TestSearch,TestOpen and TestSave.
+
+    #### Other interesting features
+
+    ***<u>Replace Function</u>***
+
+    ![Replacement Window](file:///C:\Users\HP-user\Documents\Tencent Files\2696275989\Image\C2C\AQU}J~TJL}J6H7]NUAHFUFX.png)
+
+It includes replace one and replace all.
+
+**<u>*Font Function*</u>**
+
+![Font Window](file:///C:\Users\HP-user\Documents\Tencent Files\2696275989\Image\C2C\J6N[9DFH}$WJOB$A2CQUQ`4.png)
