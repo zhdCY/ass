@@ -14,24 +14,13 @@ URL:https://gitee.com/Li20007909/Assignment
 
 There are four issues in our Gitee repository.
 
-#### Important Commit IDs
+#### NOTICES!
 
-1.  First commit(916c6e6) by Kexin Li
-2.  first commit(98e14db) by Yu Cai
-3.  update src/main/java/assignment1/text_editor.java.(7e8337d) by Kexin Li
-4.  second commit(4881122) by Kexin Li
-5.  fourth(91dac50) by Yu Cai
-6.  add README.md(8a1675b) by Yu Cai
-7.  commit print(b956206) by Kexin Li
-8.  fifth(d803d33) by Yu Cai
-9.  merge confilict(b8bf3ba) by Yu Cai
-10.  saveaspdf(9ca1216) by Kexin Li
-11.  add again(c43441c) by Yu Cai
-12.  merge(9859604) by Yu Cai
+In the function of SaveAsPDF(),We used the default font(Song Typeface) in the computer.
 
 #### Features
 
-1. initialize():when the text area is empty,users can't use SearchText, SelectText and Replace.
+1. initialize():Default font style,shape and size. And when the text area is empty,users can't use SearchText, SelectText and Replace.
 
 2. About():A dialog box is displayed, and related information is displayed.
 
@@ -47,33 +36,50 @@ There are four issues in our Gitee repository.
 
 8. *<u>**OpenFile():open a file**</u>*
 
-9. RtfContent():call this function in OpenFile()
+9. RtfContent():call this function in OpenFile() to open .rtf
 
-10. PrintFile():print this file
+10. OdtContent():call this function in OpenFile() to open .odt
 
-11. SaveAsPDF():save a file as PDF
+11. PrintFile():print this file
 
-12. SaveFile():save the file
+12. SaveAsPDF():save a file as PDF
 
-13. *<u>**Replace():Replace the text that is labeled to be searched with the text that is labeled to be replaced,including replace one and replace all**</u>*
+13. SaveFile():save the file
 
-14. Search():this function is to test the function named SearchText
+14. *<u>**Replace():Replace the text that is labeled to be searched with the text that is labeled to be replaced,including replace one and replace all**</u>*
 
-15. SearchText():Search the text filled in the text field
+15. Search():this function is to test the function named SearchText
 
-16. SelectText():select the all content in the text area.
+16. SearchText():Search the text filled in the text field
 
-17. SelectText():select all the text of the text area
+17. SelectText():select the all content in the text area.
 
-18. Wrap(): choose whether to wrap
+18. SelectText():select all the text of the text area
 
-19. <u>***Font():set the type,shape and size of the font***</u>
+19. Wrap(): choose whether to wrap
 
-20. Time(): show current data
+20. <u>***Font():set the type,shape and size of the font***</u>
 
-21. saveFile(),saveAsFile():the function named SaveFile will call these two functions.
+21. Time(): show current data
+
+22. saveFile(),saveAsFile():the function named SaveFile will call these two functions.
 
     ##### We also contain a folder named test and it includes TestSearch,TestOpen and TestSave.
+
+    #### Important Commit IDs
+
+    1.  First commit(916c6e6) by Kexin Li
+    2.  first commit(98e14db) by Yu Cai
+    3.  update src/main/java/assignment1/text_editor.java.(7e8337d) by Kexin Li
+    4.  second commit(4881122) by Kexin Li
+    5.  fourth(91dac50) by Yu Cai
+    6.  add README.md(8a1675b) by Yu Cai
+    7.  commit print(b956206) by Kexin Li
+    8.  fifth(d803d33) by Yu Cai
+    9.  merge confilict(b8bf3ba) by Yu Cai
+    10.  saveaspdf(9ca1216) by Kexin Li
+    11.  add again(c43441c) by Yu Cai
+    12.  merge(9859604) by Yu Cai
 
     #### Other interesting features
 
